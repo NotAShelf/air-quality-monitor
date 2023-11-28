@@ -56,7 +56,7 @@ in
       description = "An air quality monitoring service with a Raspberry Pi and a SDS011 sensor. ";
       homepage = "https://github.com/rydercalmdown/pi_air_quality_monitor";
       mainProgram = pname;
-      platforms = with lib.platforms; ["aarch64-linux"];
+      platforms = ["aarch64-linux" "x86_64-linux"];
       maintainers = with lib.maintainers; [NotAShelf];
     };
   }

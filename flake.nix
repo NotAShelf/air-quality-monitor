@@ -6,7 +6,7 @@
     self,
     nixpkgs,
   }: let
-    systems = ["aarch64-linux"];
+    systems = ["aarch64-linux" "x86_64-linux"];
     forEachSystem = nixpkgs.lib.genAttrs systems;
     pkgsForEach = nixpkgs.legacyPackages;
   in rec {
