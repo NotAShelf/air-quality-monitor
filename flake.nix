@@ -1,23 +1,37 @@
 {
   description = "An air quality monitoring service with a Raspberry Pi and a SDS011 sensor.";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+  };
 
   outputs = {
     self,
-    nixpkgs,
-  }: let
-    systems = ["aarch64-linux" "x86_64-linux"];
-    forEachSystem = nixpkgs.lib.genAttrs systems;
-    pkgsForEach = nixpkgs.legacyPackages;
-  in rec {
-    packages = forEachSystem (system: {
-      default = pkgsForEach.${system}.callPackage ./nix {};
-    });
+    flake-parts,
+    ...
+  } @ inputs:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      imports = [./nix/tests];
 
-    devShells = forEachSystem (system: {
-      default = pkgsForEach.${system}.callPackage ./nix/shell.nix {};
-    });
+      systems = ["x86_64-linux" "aarch64-linux"];
+      perSystem = {
+        self',
+        pkgs,
+        ...
+      }: {
+        formatter = pkgs.alejandra;
 
-    hydraJobs = packages;
-  };
+        packages = {
+          pi-air-quality-monitor = pkgs.callPackage ./nix/default.nix {};
+          default = self'.packages.pi-air-quality-monitor;
+        };
+      };
+
+      flake = {
+        nixosModules = {
+          pi-air-quality-monitor = import ./nix/module.nix self;
+          default = self.nixosModules.pi-air-quality-monitor;
+        };
+      };
+    };
 }
