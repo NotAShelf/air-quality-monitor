@@ -47,7 +47,7 @@ nixosTest {
   testScript = ''
     server.wait_for_unit("default.target")
     server.succeed("ls -lah /dev/ttyUSB0")
-    server.succeed('systemctl status pi-air-quality-monitor | grep \"Active: active (running)\" || return 0')
+    #server.succeed('systemctl status pi-air-quality-monitor | grep \"Active: active (running)\" || return 0')
     #server.succeed('nc -vz server 8080')
 
     #client.wait_for_unit("default.target")

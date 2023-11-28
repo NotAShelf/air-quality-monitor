@@ -22,15 +22,22 @@
         formatter = pkgs.alejandra;
 
         packages = {
-          pi-air-quality-monitor = pkgs.callPackage ./nix/default.nix {};
           default = self'.packages.pi-air-quality-monitor;
+          pi-air-quality-monitor = pkgs.callPackage ./nix/default.nix {};
+        };
+
+        devShells = {
+          default = self'.packages.pi-air-quality-monitor;
+          pi-air-quality-monitor = pkgs.mkShell {
+            inputsFrom = self'.packages.pi-air-quality-monitor.pythonPath;
+          };
         };
       };
 
       flake = {
         nixosModules = {
-          pi-air-quality-monitor = import ./nix/module.nix self;
           default = self.nixosModules.pi-air-quality-monitor;
+          pi-air-quality-monitor = import ./nix/module.nix self;
         };
       };
     };
