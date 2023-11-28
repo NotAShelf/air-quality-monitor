@@ -12,7 +12,7 @@ redis_client = redis.StrictRedis(host=os.environ.get('REDIS_HOST'), port=6379, d
 class AirQualityMonitor():
 
     def __init__(self):
-        self.ser = serial.Serial('/dev/ttyUSB0')
+        self.ser = serial.Serial(os.environ.get('SERIAL_DEVICE','/dev/ttyUSB0'))
 
     def get_measurement(self):
         self.data = []
