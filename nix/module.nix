@@ -113,6 +113,7 @@ in {
 
     systemd.services."pi-air-quality-monitor" = let
       globalEnv = pkgs.writeText "global.env" ''
+        PORT=${toString cfg.settings.port}
         SERIAL_DEVICE=${cfg.settings.serialPort}
       '';
 
