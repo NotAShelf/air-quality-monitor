@@ -57,18 +57,17 @@ in
       log.info("Check if unit is running correctly")
       server.wait_for_unit("pi-air-quality-monitor.service")
       server.succeed("systemctl status pi-air-quality-monitor.service | grep 'Active: active (running)' >&2")
-      server.succeed("journalctl -u pi-air-quality-monitor.service >&2")
+      server.fail("journalctl -u pi-air-quality-monitor.service | grep 'RuntimeError'")
 
       log.info("Showing units content")
       server.succeed("systemctl status pi-air-quality-monitor.service >&2")
       server.succeed("systemctl cat pi-air-quality-monitor.service >&2")
-      server.succeed("systemctl cat pi-air-quality-monitor.socket >&2")
 
       log.info("Checking if service is accessible locally")
       server.succeed("nc -vz localhost 8080")
 
       client.start()
       client.wait_for_unit("default.target")
-      #client.succeed("nc -vz server 8080")
+      client.succeed("nc -vz server 8080")
     '';
   }

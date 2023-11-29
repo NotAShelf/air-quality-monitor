@@ -112,6 +112,10 @@ in {
     };
 
     systemd.services."pi-air-quality-monitor" = let
+      globalEnv = pkgs.writeText "global.env" ''
+        SERIAL_DEVICE=${cfg.settings.serialPort}
+      '';
+
       redisEnv = pkgs.writeText "redis.env" ''
         REDIS_HOST=${cfg.settings.redis.host}
         REDIS_PORT=${toString cfg.settings.redis.port}
@@ -125,7 +129,11 @@ in {
         Type = "simple";
         User = cfg.settings.user;
         Group = cfg.settings.group;
-        EnvironmentFile = [redisEnv] ++ optional (cfg.settings.environmentFile != null) cfg.settings.environmentFile;
+        EnvironmentFile = lib.concatLists [
+          [globalEnv]
+          (optional (cfg.settings.environmentFile != null) [cfg.settings.environmentFile])
+          (optional cfg.settings.redis.createLocally [redisEnv])
+        ];
         WorkingDirectory = "${cfg.settings.dataDir}";
         ExecStart = "${lib.getExe cfg.package}";
         Restart = "always";
