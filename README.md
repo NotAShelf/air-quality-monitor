@@ -41,7 +41,7 @@ A sample configuration would be as follows:
           port = 8081; # serve web application on port 8081
           user = "pi-aqm";
           group = "pi-aqm";
-          device = "/dev/ttyUSB0"; # this is the device port that corresponds to your sensor device
+          serialPort = "/dev/ttyUSB0"; # this is the serial port that corresponds to your sensor device
 
           redis.createLocally = true;
         };

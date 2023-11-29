@@ -14,35 +14,36 @@ in {
       type = types.package;
       default = self.packages.${pkgs.system}.pi-air-quality-monitor;
     };
+
     openFirewall = mkOption {
       type = types.bool;
       default = true;
-      description = "Whether to open the firewall for the server";
+      description = "Whether to open the firewall for the service";
     };
 
     settings = {
       port = mkOption {
         type = types.int;
         default = 8080;
-        description = "Port to run the server on";
+        description = "Port to run the service on";
       };
 
       user = mkOption {
         type = types.str;
         default = "pi-aqm";
-        description = "User to run the server as";
+        description = "User to run the servvice as";
       };
 
       group = mkOption {
         type = types.str;
         default = "pi-aqm";
-        description = "Group to run the server as";
+        description = "Group to run the service as";
       };
 
-      device = mkOption {
+      serialPort = mkOption {
         type = types.path;
         default = "/dev/ttyUSB0";
-        description = "Device to read data from";
+        description = "Serial port device to read data from";
       };
 
       environmentFile = mkOption {
@@ -128,6 +129,33 @@ in {
         WorkingDirectory = "${cfg.settings.dataDir}";
         ExecStart = "${lib.getExe cfg.package}";
         Restart = "always";
+
+        # Hardening
+        CapabilityBoundingSet = "";
+        DeviceAllow = [cfg.settings.serialPort];
+        DevicePolicy = "closed";
+        DynamicUser = true;
+        LockPersonality = true;
+        MemoryDenyWriteExecute = false;
+        NoNewPrivileges = true;
+        PrivateUsers = true;
+        PrivateTmp = true;
+        ProtectClock = true;
+        ProtectControlGroups = true;
+        ProtectHome = true;
+        ProtectHostname = true;
+        ProtectKernelLogs = true;
+        ProtectKernelModules = true;
+        RemoveIPC = true;
+        RestrictNamespaces = true;
+        RestrictRealtime = true;
+        RestrictSUIDSGID = true;
+        SystemCallArchitectures = "native";
+        UMask = "0077";
+        SystemCallFilter = [
+          "@system-service @pkey"
+          "~@privileged @resources"
+        ];
       };
     };
   };
