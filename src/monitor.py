@@ -17,7 +17,12 @@ class AirQualityMonitor:
     SERIAL_DEVICE = os.environ.get("SERIAL_DEVICE", "/dev/ttyUSB0")
 
     def __init__(self):
-        self.ser = serial.Serial(self.SERIAL_DEVICE)
+        # if path does not exist, error and exit
+        if not os.path.exists(self.SERIAL_DEVICE):
+            raise RuntimeError(f"Serial device {self.SERIAL_DEVICE} not found.")
+        else:
+            print(f"Serial device {self.SERIAL_DEVICE} found.")
+            self.ser = serial.Serial(self.SERIAL_DEVICE)
 
     def get_measurement(self):
         """Fetches a measurement from the sensor and returns it."""
