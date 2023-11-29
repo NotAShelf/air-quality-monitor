@@ -12,7 +12,7 @@ in {
     enable = mkEnableOption "pi-air-quality-monitor";
     package = mkOption {
       type = types.package;
-      default = self.packages.${pkgs.system}.pi-air-quality-monitor;
+      default = self.packages.${pkgs.system}.air-quality-monitor;
     };
 
     openFirewall = mkOption {

@@ -19,7 +19,7 @@
     packages.test = self'.checks.basic.driverInteractive;
 
     checks = {
-      basic = callPackage ./checks/basic.nix {inherit self;};
+      basic = callPackage ./checks/basic.nix {inherit self self';};
       default = self'.checks.basic;
     };
   };

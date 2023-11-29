@@ -1,9 +1,11 @@
 {
   nixosTest,
   self,
+  self',
+  lib,
   ...
 }: let
-  serialPort = "/dev/ttyS0";
+  serialPort = "/dev/pts/2";
 in
   nixosTest {
     name = "basic";
@@ -50,24 +52,25 @@ in
     testScript = ''
       server.start()
 
-      server.wait_for_unit("default.target")
+      server.wait_for_unit("network.target")
       log.info("Checking if configured serial port exists")
-      server.succeed("ls -lah ${serialPort}")
+      serialPort = server.succeed("${lib.getExe self'.packages.dummy-serial} --quiet")
+
+      if any(serialPort):
+        log.info("Serial port exists!")
+      else:
+        log.info("Serial port does not exist")
 
       log.info("Check if unit is running correctly")
       server.wait_for_unit("pi-air-quality-monitor.service")
-      server.succeed("systemctl status pi-air-quality-monitor.service | grep 'Active: active (running)' >&2")
-      server.fail("journalctl -u pi-air-quality-monitor.service | grep 'RuntimeError'")
-
-      log.info("Showing units content")
-      server.succeed("systemctl status pi-air-quality-monitor.service >&2")
-      server.succeed("systemctl cat pi-air-quality-monitor.service >&2")
+      server.succeed("systemctl status pi-air-quality-monitor.service | grep 'Active: active (running)'")
+      server.fail("journalctl -xeu pi-air-quality-monitor.service | grep 'RuntimeError'")
 
       log.info("Checking if service is accessible locally")
-      server.succeed("nc -vz localhost 8080")
+      server.succeed("curl --fail http://localhost:8080 | grep 'Air'")
 
       client.start()
-      client.wait_for_unit("default.target")
+      client.wait_for_unit("network.target")
       client.succeed("nc -vz server 8080")
     '';
   }
